@@ -1,4 +1,4 @@
-package top.fallenangel.tools.http
+package top.clearplume.httputil
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.apache.http.HttpVersion
@@ -7,8 +7,8 @@ import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.entity.ContentType
 import org.apache.http.message.BasicStatusLine
 import org.apache.http.util.EntityUtils
-import top.fallenangel.tools.http.util.isValid
-import top.fallenangel.tools.http.util.log
+import top.clearplume.httputil.util.isValid
+import top.clearplume.httputil.util.log
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 

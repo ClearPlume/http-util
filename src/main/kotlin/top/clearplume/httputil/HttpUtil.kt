@@ -1,4 +1,4 @@
-package top.fallenangel.tools.http
+package top.clearplume.httputil
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
@@ -15,8 +15,8 @@ import org.apache.http.entity.mime.MultipartEntityBuilder
 import org.apache.http.entity.mime.content.ContentBody
 import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.message.BasicNameValuePair
-import top.fallenangel.tools.http.method.Method
-import top.fallenangel.tools.http.util.log
+import top.clearplume.httputil.method.Method
+import top.clearplume.httputil.util.log
 import java.io.IOException
 import java.lang.reflect.Array
 import java.lang.reflect.Type

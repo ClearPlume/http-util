@@ -1,9 +1,9 @@
-package top.fallenangel.tools.http
+package top.clearplume.httputil
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import org.junit.jupiter.api.Test
-import top.fallenangel.tools.http.method.Method
+import top.clearplume.httputil.method.Method
 
 class HttpUtilTest {
     @Test

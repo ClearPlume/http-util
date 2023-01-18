@@ -1,4 +1,4 @@
-package top.fallenangel.tools.http.method
+package top.clearplume.httputil.method
 
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpPost
