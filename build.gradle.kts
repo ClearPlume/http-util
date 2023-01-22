@@ -12,14 +12,29 @@ plugins {
     application
 }
 
-group = "top.clearplume.httputil"
+group = "top.clearplume"
 version = "0.0.1"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("commons-codec:commons-codec:$commonsCodecVersion")
+    implementation("org.apache.httpcomponents:httpclient:$httpClientVersion")
+    api("org.apache.httpcomponents:httpmime:$httpClientVersion")
+    implementation("org.projectlombok:lombok:$lombokVersion")
+    implementation("ch.qos.logback:logback-classic:$logbackVersion")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+
+    testImplementation(kotlin("test"))
+}
 
 publishing {
     publications {
         create<MavenPublication>("HttpUtil") {
             from(components["kotlin"])
-            groupId = "top.clearplume.httputil"
+            groupId = "top.clearplume"
             artifactId = "http-util"
             version = "0.0.1"
 
@@ -51,21 +66,6 @@ publishing {
             }
         }
     }
-}
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    implementation("commons-codec:commons-codec:$commonsCodecVersion")
-    implementation("org.apache.httpcomponents:httpclient:$httpClientVersion")
-    implementation("org.apache.httpcomponents:httpmime:$httpClientVersion")
-    implementation("org.projectlombok:lombok:$lombokVersion")
-    implementation("ch.qos.logback:logback-classic:$logbackVersion")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
-
-    testImplementation(kotlin("test"))
 }
 
 tasks.test {
