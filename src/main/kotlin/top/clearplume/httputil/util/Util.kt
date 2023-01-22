@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-val <reified T : Any> T.log: Logger
+internal val <reified T : Any> T.log: Logger
     inline get() = LoggerFactory.getLogger(T::class.java)
 
 fun ObjectMapper.isValid(json: String): Boolean {
