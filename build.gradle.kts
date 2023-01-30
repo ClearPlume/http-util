@@ -46,7 +46,6 @@ publishing {
             pom {
                 name.set("HttpUtil")
                 description.set("Simple chain call wrapping based on HttpClient")
-                url.set("https://github.com/ClearPlume/http-util")
                 developers {
                     developer {
                         id.set("fallenagnel")
@@ -69,6 +68,7 @@ publishing {
 
     repositories {
         mavenCentral {
+            url = uri("https://s01.oss.sonatype.org/content/repositories/releases/")
             authentication {
                 create<BasicAuthentication>("basic")
             }
@@ -92,6 +92,6 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
 
-tasks.withType<Javadoc>{
+tasks.withType<Javadoc> {
     options.encoding = "UTF-8"
 }
