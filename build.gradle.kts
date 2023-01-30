@@ -8,8 +8,8 @@ val jacksonVersion: String by project
 
 plugins {
     id("maven-publish")
+    id("signing")
     kotlin("jvm") version "1.7.21"
-    application
 }
 
 group = "top.clearplume"
@@ -30,10 +30,15 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
 publishing {
     publications {
         create<MavenPublication>("HttpUtil") {
-            from(components["kotlin"])
+            from(components["java"])
             groupId = "top.clearplume"
             artifactId = "http-util"
             version = "0.0.1"
@@ -41,15 +46,22 @@ publishing {
             pom {
                 name.set("HttpUtil")
                 description.set("Simple chain call wrapping based on HttpClient")
+                url.set("https://github.com/ClearPlume/http-util")
                 developers {
                     developer {
-                        name.set("fallenagnel")
+                        id.set("fallenagnel")
+                        name.set("杜海蛟")
                         email.set("the.fallenangel.965@gmail.com")
                     }
                 }
                 licenses {
                     name.set("GNU General Public License v3.0")
-                    url.set("https://www.gnu.org/licenses/gpl-3.0.txt")
+                    url.set("https://github.com/ClearPlume/http-util/blob/master/LICENSE")
+                }
+                scm {
+                    connection.set("scm:git:git://github.com/ClearPlume/http-util.git")
+                    developerConnection.set("scm:git:ssh://github.com/ClearPlume/http-util.git")
+                    url.set("https://github.com/ClearPlume/http-util")
                 }
             }
         }
@@ -68,10 +80,18 @@ publishing {
     }
 }
 
+signing {
+    sign(publishing.publications["HttpUtil"])
+}
+
 tasks.test {
     useJUnitPlatform()
 }
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
+}
+
+tasks.withType<Javadoc>{
+    options.encoding = "UTF-8"
 }
