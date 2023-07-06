@@ -1,20 +1,21 @@
-package top.clearplume.httputil
+package net.fallingangel.httputil
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import net.fallingangel.httputil.util.isValid
+import net.fallingangel.httputil.util.log
 import org.apache.http.HttpVersion
 import org.apache.http.StatusLine
 import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.entity.ContentType
 import org.apache.http.message.BasicStatusLine
 import org.apache.http.util.EntityUtils
-import top.clearplume.httputil.util.isValid
-import top.clearplume.httputil.util.log
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 
 class Response<T> {
     var status: StatusLine
-    var haveBody = false
+    private var haveBody = false
+
     lateinit var bodyString: String
     private var body: Any? = null
 

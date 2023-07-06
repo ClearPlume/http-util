@@ -1,5 +1,6 @@
-package top.clearplume.httputil.util
+package net.fallingangel.httputil.util
 
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -7,7 +8,7 @@ import org.slf4j.LoggerFactory
 internal val <reified T : Any> T.log: Logger
     inline get() = LoggerFactory.getLogger(T::class.java)
 
-fun ObjectMapper.isValid(json: String): Boolean {
+internal fun ObjectMapper.isValid(json: String): Boolean {
     return try {
         readTree(json)
         true
@@ -15,3 +16,6 @@ fun ObjectMapper.isValid(json: String): Boolean {
         false
     }
 }
+
+@Suppress("unused")
+typealias TypeReference<T> = TypeReference<T>

@@ -12,7 +12,7 @@ plugins {
     kotlin("jvm") version "1.7.21"
 }
 
-group = "top.clearplume"
+group = "net.fallingangel"
 version = "0.0.1"
 
 repositories {
@@ -20,9 +20,10 @@ repositories {
 }
 
 dependencies {
+    api("org.apache.httpcomponents:httpmime:$httpClientVersion")
+
     implementation("commons-codec:commons-codec:$commonsCodecVersion")
     implementation("org.apache.httpcomponents:httpclient:$httpClientVersion")
-    api("org.apache.httpcomponents:httpmime:$httpClientVersion")
     implementation("org.projectlombok:lombok:$lombokVersion")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
@@ -33,13 +34,15 @@ dependencies {
 java {
     withJavadocJar()
     withSourcesJar()
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 publishing {
     publications {
         create<MavenPublication>("HttpUtil") {
             from(components["java"])
-            groupId = "top.clearplume"
+            groupId = "net.fallingangel"
             artifactId = "http-util"
             version = "0.0.1"
 

@@ -1,4 +1,4 @@
-package top.clearplume.httputil.method
+package net.fallingangel.httputil.method
 
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase
 

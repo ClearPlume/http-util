@@ -1,9 +1,9 @@
-package top.clearplume.httputil
+package net.fallingangel.httputil
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import org.junit.jupiter.api.Test
-import top.clearplume.httputil.method.Method
+import net.fallingangel.httputil.method.Method
 
 class HttpUtilTest {
     @Test
@@ -27,6 +27,18 @@ class HttpUtilTest {
                 .addParam("password", "123456")
                 .execute(Result::class.java)
         println("response with class")
+        println(response.getBody())
+    }
+
+    @Test
+    fun testTypeReference() {
+        val response: Response<Result> = HttpUtil.configurer()
+                .method(Method.POST)
+                .url("http://192.168.31.121:8000/mgt/user/login")
+                .addParam("account", "admin")
+                .addParam("password", "123456")
+                .execute(jacksonTypeRef<Result>())
+        println("response with type reference")
         println(response.getBody())
     }
 

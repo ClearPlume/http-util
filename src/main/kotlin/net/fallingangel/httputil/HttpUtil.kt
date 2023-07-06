@@ -1,9 +1,13 @@
-package top.clearplume.httputil
+package net.fallingangel.httputil
 
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
+import net.fallingangel.httputil.method.Method
+import net.fallingangel.httputil.util.log
 import org.apache.http.HttpEntityEnclosingRequest
 import org.apache.http.NameValuePair
+import org.apache.http.client.config.RequestConfig
 import org.apache.http.client.entity.UrlEncodedFormEntity
 import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.client.methods.HttpGet
@@ -15,8 +19,6 @@ import org.apache.http.entity.mime.MultipartEntityBuilder
 import org.apache.http.entity.mime.content.ContentBody
 import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.message.BasicNameValuePair
-import top.clearplume.httputil.method.Method
-import top.clearplume.httputil.util.log
 import java.io.IOException
 import java.lang.reflect.Array
 import java.lang.reflect.Type
@@ -25,7 +27,6 @@ import java.net.Socket
 import java.net.URI
 import java.nio.charset.StandardCharsets
 
-@Suppress("unused")
 object HttpUtil {
     val CONTENT_TYPE_STR: ContentType = ContentType.create("text/plain", StandardCharsets.UTF_8)
 
@@ -72,6 +73,8 @@ object HttpUtil {
 
         private var method = Method.GET
         private var contentType = ContentType.APPLICATION_JSON
+        private var connectTimeout = 0
+        private var readTimeout = 0
 
         private var singleParam: Any? = null
         private lateinit var url: String
@@ -131,6 +134,26 @@ object HttpUtil {
         }
 
         /**
+         * 设置连接超时时间
+         *
+         * @param timeout 单位毫秒，默认值为0，永不超时
+         */
+        fun connectTimeout(timeout: Int) {
+            connectTimeout = timeout
+            log.info("设置连接超时时间：$connectTimeout")
+        }
+
+        /**
+         * 设置获取数据超时时间
+         *
+         * @param timeout 单位毫秒，默认值为0，永不超时
+         */
+        fun readTimeout(timeout: Int) {
+            readTimeout = timeout
+            log.info("设置获取数据超时时间：$readTimeout")
+        }
+
+        /**
          * 发起请求，结果以`Map<String, Object>`的形式处理
          *
          * <pre>`HttpUtil.HttpUtilBuilder httpBuilder = HttpUtil.configurer()
@@ -143,7 +166,23 @@ object HttpUtil {
          * Response<Map<String, Object>> response = httpBuilder.execute();`</pre>
          */
         fun execute(): Response<Map<String, Any?>> {
-            return execute(jacksonTypeRef<Map<String, Any?>>().type)
+            return execute(jacksonTypeRef<Map<String, Any?>>())
+        }
+
+        /**
+         * 发起请求，结果转换为`type`类型
+         *
+         * <pre>`Response<Map<String, Object>> response = HttpUtil.configurer()
+         *                                                        .url("http://192.168.31.167:8300/mgt/task_log/0")
+         *                                                        .addParam("page_index", 1)
+         *                                                        .addParam("page_size", 10)
+         *                                                        .execute(new TypeReference<>() {});
+         * Map<String, Object> body = response.getBody();`</pre>
+         *
+         * 注：此[TypeReference]为jackson的[com.fasterxml.jackson.core.type.TypeReference]，也可使用[net.fallingangel.httputil.util.TypeReference]
+         */
+        fun <T> execute(type: TypeReference<T>): Response<T> {
+            return execute(type.type)
         }
 
         /**
@@ -192,8 +231,8 @@ object HttpUtil {
             } catch (e: IOException) {
                 e.printStackTrace()
                 val errorMsg = e.toString()
-                log.info("请求失败，错误信息如下：")
-                log.info(errorMsg)
+                log.error("请求失败，错误信息如下：")
+                log.error(errorMsg)
                 Response.build(errorMsg)
             }
         }
@@ -205,6 +244,15 @@ object HttpUtil {
             // 获取Http请求实例
             val instance = Method.instance(method)
 
+            // 设置请求配置
+            instance.config = RequestConfig.custom()
+                    // 连接超时时间
+                    .setConnectTimeout(connectTimeout)
+                    .setConnectionRequestTimeout(connectTimeout)
+                    // 获取数据超时时间
+                    .setSocketTimeout(readTimeout)
+                    .build()
+
             // 设置URL
             instance.uri = URI.create(url)
 
@@ -213,7 +261,7 @@ object HttpUtil {
 
             // 不默认使用长连接
             if ("Connection" !in headers) {
-                log.info("默认未指定Connection请求头，添加<Connection=close>以避免长连接！")
+                log.info("未指定Connection请求头，添加<Connection=close>以避免长连接！")
                 instance.addHeader("Connection", "close")
             }
 
