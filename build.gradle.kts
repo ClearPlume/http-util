@@ -6,6 +6,9 @@ val lombokVersion: String by project
 val logbackVersion: String by project
 val jacksonVersion: String by project
 
+val mvnUsername: String = findProperty("MVN_USERNAME") as String
+val mvnPwd: String = findProperty("MVN_PWD") as String
+
 plugins {
     id("maven-publish")
     id("signing")
@@ -76,8 +79,8 @@ publishing {
                 create<BasicAuthentication>("basic")
             }
             credentials {
-                username = findProperty("MVN_USERNAME") as String
-                password = findProperty("MVN_PWD") as String
+                username = mvnUsername
+                password = mvnPwd
             }
         }
     }
