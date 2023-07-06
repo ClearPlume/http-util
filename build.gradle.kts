@@ -76,8 +76,8 @@ publishing {
                 create<BasicAuthentication>("basic")
             }
             credentials {
-                username = System.getenv("MVN_USERNAME")
-                password = System.getenv("MVN_PWD")
+                username = findProperty("MVN_USERNAME") as String
+                password = findProperty("MVN_PWD") as String
             }
         }
     }
