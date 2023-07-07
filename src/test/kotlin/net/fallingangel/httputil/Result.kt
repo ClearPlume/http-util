@@ -4,9 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class Result(
     val code: String,
-    val data: LoginResult,
     @field:JsonProperty("code_detail")
-    val codeDetail: String
+    val codeDetail: String,
+    val data: LoginResult,
+    val msg: String?
 )
 
 data class LoginResult(
@@ -19,8 +20,8 @@ data class UserResult(
     @field:JsonProperty("user_id")
     val userId: Int,
     val name: String,
-    @field:JsonProperty("role_id")
-    val roleId: Int,
+    val roles: List<String>,
+    val auths: List<String>,
     @field:JsonProperty("project_id")
     val projectId: Int,
 )

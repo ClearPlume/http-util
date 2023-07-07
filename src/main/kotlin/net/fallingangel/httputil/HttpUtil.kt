@@ -1,6 +1,12 @@
 package net.fallingangel.httputil
 
+import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.DeserializationContext
+import com.fasterxml.jackson.databind.JsonDeserializer
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.databind.node.JsonNodeType
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import net.fallingangel.httputil.method.Method
@@ -166,7 +172,46 @@ object HttpUtil {
          * Response<Map<String, Object>> response = httpBuilder.execute();`</pre>
          */
         fun execute(): Response<Map<String, Any?>> {
-            return execute(jacksonTypeRef<Map<String, Any?>>())
+            return execute {
+                jacksonObjectMapper()
+                        .registerModule(SimpleModule().addDeserializer(Map::class.java, object : JsonDeserializer<Map<String, Any?>>() {
+                            override fun deserialize(p: JsonParser, ctxt: DeserializationContext) = deserializeObj(p.codec.readTree(p))
+
+                            /**
+                             * 将一个[JsonNode]反序列化为Map<String, Any?>
+                             */
+                            fun deserializeObj(node: JsonNode): Map<String, Any?> {
+                                return node.fields()
+                                        .asSequence()
+                                        .map { (key, value) -> key to deserializeValue(value) }
+                                        .associate { pair -> pair }
+                            }
+
+                            fun deserializeValue(value: JsonNode): Any? {
+                                return when (value.nodeType) {
+                                    JsonNodeType.OBJECT -> deserializeObj(value)
+
+                                    JsonNodeType.ARRAY -> {
+                                        value.elements()
+                                                .asSequence()
+                                                .map { element -> deserializeValue(element) }
+                                                .toList()
+                                    }
+
+                                    JsonNodeType.BOOLEAN -> value.booleanValue()
+
+                                    JsonNodeType.MISSING, JsonNodeType.NULL -> null
+
+                                    JsonNodeType.NUMBER -> value.numberValue()
+
+                                    JsonNodeType.STRING -> value.textValue()
+
+                                    else -> value
+                                }
+                            }
+                        }))
+                        .readValue(it, jacksonTypeRef())
+            }
         }
 
         /**
@@ -196,7 +241,10 @@ object HttpUtil {
          * Map<String, Object> body = response.getBody();`</pre>
          */
         fun <T> execute(type: Type): Response<T> {
-            return execute { jacksonObjectMapper().readValue(it, jacksonObjectMapper().typeFactory.constructType(type)) }
+            return execute {
+                val objectMapper = jacksonObjectMapper()
+                objectMapper.readValue(it, objectMapper.constructType(type))
+            }
         }
 
         /**

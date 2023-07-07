@@ -2,8 +2,8 @@ package net.fallingangel.httputil
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
-import org.junit.jupiter.api.Test
 import net.fallingangel.httputil.method.Method
+import org.junit.jupiter.api.Test
 
 class HttpUtilTest {
     @Test
@@ -12,7 +12,10 @@ class HttpUtilTest {
                 .method(Method.POST)
                 .url("http://192.168.31.121:8000/mgt/user/login")
                 .addParam("account", "admin")
-                .addParam("password", "123456")
+                .addParam(
+                    "password",
+                    "lpy8NmX+BrXckebSoPEhEG4Msii3pkgzG0A/HJx79Xs+EcZtQJCMrGZ8zMS2arjgquc6Lu0vPMry1BbbMltXQoASkYdJfUgH7hcQDepH7ttcenfupXjL+eYMfnRPmJWcJl5/VhfcLx8JDlSQba3UmZNbMXWM7QSKPJtG0JtChO4="
+                )
                 .execute()
         println("default response")
         println(response.getBody())
@@ -24,7 +27,10 @@ class HttpUtilTest {
                 .method(Method.POST)
                 .url("http://192.168.31.121:8000/mgt/user/login")
                 .addParam("account", "admin")
-                .addParam("password", "123456")
+                .addParam(
+                    "password",
+                    "lpy8NmX+BrXckebSoPEhEG4Msii3pkgzG0A/HJx79Xs+EcZtQJCMrGZ8zMS2arjgquc6Lu0vPMry1BbbMltXQoASkYdJfUgH7hcQDepH7ttcenfupXjL+eYMfnRPmJWcJl5/VhfcLx8JDlSQba3UmZNbMXWM7QSKPJtG0JtChO4="
+                )
                 .execute(Result::class.java)
         println("response with class")
         println(response.getBody())
@@ -36,7 +42,10 @@ class HttpUtilTest {
                 .method(Method.POST)
                 .url("http://192.168.31.121:8000/mgt/user/login")
                 .addParam("account", "admin")
-                .addParam("password", "123456")
+                .addParam(
+                    "password",
+                    "lpy8NmX+BrXckebSoPEhEG4Msii3pkgzG0A/HJx79Xs+EcZtQJCMrGZ8zMS2arjgquc6Lu0vPMry1BbbMltXQoASkYdJfUgH7hcQDepH7ttcenfupXjL+eYMfnRPmJWcJl5/VhfcLx8JDlSQba3UmZNbMXWM7QSKPJtG0JtChO4="
+                )
                 .execute(jacksonTypeRef<Result>())
         println("response with type reference")
         println(response.getBody())
@@ -48,7 +57,10 @@ class HttpUtilTest {
                 .method(Method.POST)
                 .url("http://192.168.31.121:8000/mgt/user/login")
                 .addParam("account", "admin")
-                .addParam("password", "123456")
+                .addParam(
+                    "password",
+                    "lpy8NmX+BrXckebSoPEhEG4Msii3pkgzG0A/HJx79Xs+EcZtQJCMrGZ8zMS2arjgquc6Lu0vPMry1BbbMltXQoASkYdJfUgH7hcQDepH7ttcenfupXjL+eYMfnRPmJWcJl5/VhfcLx8JDlSQba3UmZNbMXWM7QSKPJtG0JtChO4="
+                )
                 .execute(jacksonTypeRef<Result>().type)
         println("response with type")
         println(response.getBody())
@@ -60,23 +72,28 @@ class HttpUtilTest {
                 .method(Method.POST)
                 .url("http://192.168.31.121:8000/mgt/user/login")
                 .addParam("account", "admin")
-                .addParam("password", "123456")
+                .addParam(
+                    "password",
+                    "lpy8NmX+BrXckebSoPEhEG4Msii3pkgzG0A/HJx79Xs+EcZtQJCMrGZ8zMS2arjgquc6Lu0vPMry1BbbMltXQoASkYdJfUgH7hcQDepH7ttcenfupXjL+eYMfnRPmJWcJl5/VhfcLx8JDlSQba3UmZNbMXWM7QSKPJtG0JtChO4="
+                )
                 .execute {
                     val data = jacksonObjectMapper().readTree(it)
                     Result(
-                        data.get("code").textValue(),
+                        data["code"].textValue(),
+                        data["code_detail"].textValue(),
                         LoginResult(
-                            data.get("data").get("token").textValue(),
-                            with(data.get("data").get("user_info")) {
+                            data["data"]["token"].textValue(),
+                            with(data["data"]["user_info"]) {
                                 UserResult(
                                     get("user_id").intValue(),
                                     get("name").textValue(),
-                                    get("role_id").intValue(),
+                                    get("roles").elements().asSequence().map { element -> element.textValue() }.toList(),
+                                    get("auths").elements().asSequence().map { element -> element.textValue() }.toList(),
                                     get("project_id").intValue()
                                 )
                             }
                         ),
-                        data.get("code_detail").textValue()
+                        data["msg"].asText(),
                     )
                 }
         println("response with converter")
