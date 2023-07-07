@@ -47,7 +47,7 @@ publishing {
             from(components["java"])
             groupId = "net.fallingangel"
             artifactId = "http-util"
-            version = "0.0.1"
+            version = "0.0.2"
 
             pom {
                 name.set("HttpUtil")
