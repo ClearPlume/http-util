@@ -1,8 +1,5 @@
 package net.fallingangel.httputil
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import net.fallingangel.httputil.util.isValid
-import net.fallingangel.httputil.util.log
 import org.apache.http.HttpVersion
 import org.apache.http.StatusLine
 import org.apache.http.client.methods.CloseableHttpResponse
@@ -12,6 +9,7 @@ import org.apache.http.util.EntityUtils
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 
+@Suppress("MemberVisibilityCanBePrivate")
 class Response<T> {
     var status: StatusLine
     private var haveBody = false
@@ -37,7 +35,7 @@ class Response<T> {
             }
             bodyString = String(data, StandardCharsets.UTF_8)
             if (HttpUtil.contentTypeEquals(ContentType.get(entity), ContentType.APPLICATION_JSON)) {
-                if (jacksonObjectMapper().isValid(bodyString)) {
+                if (jsonMapper.isValid(bodyString)) {
                     body = converter(data)
                 }
             }

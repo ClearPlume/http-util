@@ -1,6 +1,5 @@
 package net.fallingangel.httputil
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import net.fallingangel.httputil.method.Method
 import org.junit.jupiter.api.Test
@@ -77,7 +76,7 @@ class HttpUtilTest {
                     "lpy8NmX+BrXckebSoPEhEG4Msii3pkgzG0A/HJx79Xs+EcZtQJCMrGZ8zMS2arjgquc6Lu0vPMry1BbbMltXQoASkYdJfUgH7hcQDepH7ttcenfupXjL+eYMfnRPmJWcJl5/VhfcLx8JDlSQba3UmZNbMXWM7QSKPJtG0JtChO4="
                 )
                 .execute {
-                    val data = jacksonObjectMapper().readTree(it)
+                    val data = jsonMapper.readTree(it)
                     Result(
                         data["code"].textValue(),
                         data["code_detail"].textValue(),

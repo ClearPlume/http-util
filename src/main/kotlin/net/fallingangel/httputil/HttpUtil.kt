@@ -7,10 +7,8 @@ import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.databind.node.JsonNodeType
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import net.fallingangel.httputil.method.Method
-import net.fallingangel.httputil.util.log
 import org.apache.http.HttpEntityEnclosingRequest
 import org.apache.http.NameValuePair
 import org.apache.http.client.config.RequestConfig
@@ -33,8 +31,10 @@ import java.net.Socket
 import java.net.URI
 import java.nio.charset.StandardCharsets
 
+@Suppress("unused")
 object HttpUtil {
-    val CONTENT_TYPE_STR: ContentType = ContentType.create("text/plain", StandardCharsets.UTF_8)
+    // mimeType: text/plain
+    private val CONTENT_TYPE_STR: ContentType = ContentType.create("text/plain", StandardCharsets.UTF_8)
 
     @JvmStatic
     fun configurer(): HttpUtilBuilder {
@@ -173,7 +173,7 @@ object HttpUtil {
          */
         fun execute(): Response<Map<String, Any?>> {
             return execute {
-                jacksonObjectMapper()
+                jsonMapper
                         .registerModule(SimpleModule().addDeserializer(Map::class.java, object : JsonDeserializer<Map<String, Any?>>() {
                             override fun deserialize(p: JsonParser, ctxt: DeserializationContext) = deserializeObj(p.codec.readTree(p))
 
@@ -224,7 +224,7 @@ object HttpUtil {
          *                                                        .execute(new TypeReference<>() {});
          * Map<String, Object> body = response.getBody();`</pre>
          *
-         * 注：此[TypeReference]为jackson的[com.fasterxml.jackson.core.type.TypeReference]，也可使用[net.fallingangel.httputil.util.TypeReference]
+         * 注：此[TypeReference]为jackson的[com.fasterxml.jackson.core.type.TypeReference]，也可使用[net.fallingangel.httputil.TypeReference]
          */
         fun <T> execute(type: TypeReference<T>): Response<T> {
             return execute(type.type)
@@ -242,8 +242,7 @@ object HttpUtil {
          */
         fun <T> execute(type: Type): Response<T> {
             return execute {
-                val objectMapper = jacksonObjectMapper()
-                objectMapper.readValue(it, objectMapper.constructType(type))
+                jsonMapper.readValue(it, jsonMapper.constructType(type))
             }
         }
 
@@ -259,7 +258,7 @@ object HttpUtil {
         `</pre> *
          */
         fun <T : Any> execute(klass: Class<T>): Response<T> {
-            return execute { jacksonObjectMapper().readValue(it, klass) }
+            return execute { jsonMapper.readValue(it, klass) }
         }
 
         /**
@@ -335,12 +334,12 @@ object HttpUtil {
                 // 注：也可能直接就是一个JSON字符串
                 val request = instance as HttpEntityEnclosingRequest
                 if (singleParam != null) {
-                    val paramStr = (singleParam as? String) ?: jacksonObjectMapper().writeValueAsString(singleParam)
+                    val paramStr = (singleParam as? String) ?: jsonMapper.writeValueAsString(singleParam)
                     request.entity = StringEntity(paramStr, StandardCharsets.UTF_8)
                     log.info("param: {}", paramStr)
                 } else {
                     if (contentTypeEquals(contentType, ContentType.APPLICATION_JSON)) { // 如果是JSON，把参数装进Map转为json字符串，以StringEntity的形式发送
-                        val param = jacksonObjectMapper().writeValueAsString(collectParam())
+                        val param = jsonMapper.writeValueAsString(collectParam())
                         request.entity = StringEntity(param, StandardCharsets.UTF_8)
                         log.info("param: {}", param)
                     } else if (contentTypeEquals(contentType, ContentType.APPLICATION_FORM_URLENCODED)) { // 如果是普通表单
