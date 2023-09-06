@@ -25,7 +25,6 @@ import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.message.BasicNameValuePair
 import java.io.IOException
 import java.lang.reflect.Array
-import java.lang.reflect.Type
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.net.URI
@@ -227,23 +226,7 @@ object HttpUtil {
          * 注：此[TypeReference]为jackson的[com.fasterxml.jackson.core.type.TypeReference]，也可使用[net.fallingangel.httputil.TypeReference]
          */
         fun <T> execute(type: TypeReference<T>): Response<T> {
-            return execute(type.type)
-        }
-
-        /**
-         * 发起请求，结果转换为`type`类型
-         *
-         * <pre>`Response<Map<String, Object>> response = HttpUtil.configurer()
-         *                                                        .url("http://192.168.31.167:8300/mgt/task_log/0")
-         *                                                        .addParam("page_index", 1)
-         *                                                        .addParam("page_size", 10)
-         *                                                        .execute(new TypeReference<>() {}.getType());
-         * Map<String, Object> body = response.getBody();`</pre>
-         */
-        fun <T> execute(type: Type): Response<T> {
-            return execute {
-                jsonMapper.readValue(it, jsonMapper.constructType(type))
-            }
+            return execute { jsonMapper.readValue(it, type) }
         }
 
         /**

@@ -51,21 +51,6 @@ class HttpUtilTest {
     }
 
     @Test
-    fun testType() {
-        val response = HttpUtil.configurer()
-                .method(Method.POST)
-                .url("http://192.168.31.121:8000/mgt/user/login")
-                .addParam("account", "admin")
-                .addParam(
-                    "password",
-                    "lpy8NmX+BrXckebSoPEhEG4Msii3pkgzG0A/HJx79Xs+EcZtQJCMrGZ8zMS2arjgquc6Lu0vPMry1BbbMltXQoASkYdJfUgH7hcQDepH7ttcenfupXjL+eYMfnRPmJWcJl5/VhfcLx8JDlSQba3UmZNbMXWM7QSKPJtG0JtChO4="
-                )
-                .execute(jacksonTypeRef<Result>().type)
-        println("response with type")
-        println(response.body)
-    }
-
-    @Test
     fun testConverter() {
         val response = HttpUtil.configurer()
                 .method(Method.POST)
