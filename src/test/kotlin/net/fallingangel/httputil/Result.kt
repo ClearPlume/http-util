@@ -22,6 +22,6 @@ data class UserResult(
     val name: String,
     val roles: List<String>,
     val auths: List<String>,
-    @field:JsonProperty("project_id")
-    val projectId: Int,
+    @field:JsonProperty("curr_project")
+    val currProject: Int,
 )

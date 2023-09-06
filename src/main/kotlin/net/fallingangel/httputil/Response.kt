@@ -12,17 +12,17 @@ import java.nio.charset.StandardCharsets
 @Suppress("MemberVisibilityCanBePrivate")
 class Response<T> {
     var status: StatusLine
-    private var haveBody = false
+    var body: T? = null
+    var haveBody = false
 
     lateinit var bodyString: String
-    private var body: Any? = null
 
     private constructor(errorMsg: String) {
         status = BasicStatusLine(HttpVersion.HTTP_1_1, 500, "Internal Server Error")
         bodyString = errorMsg
     }
 
-    private constructor(response: CloseableHttpResponse, converter: (ByteArray) -> Any) {
+    private constructor(response: CloseableHttpResponse, converter: (ByteArray) -> T) {
         status = response.statusLine
         val entity = response.entity
         haveBody = entity != null
@@ -54,13 +54,8 @@ class Response<T> {
         log.warn("===============Http请求结束===============")
     }
 
-    @Suppress("UNCHECKED_CAST")
-    fun getBody(): T? {
-        return body as T?
-    }
-
     companion object {
-        fun <T> build(response: CloseableHttpResponse, converter: (ByteArray) -> Any): Response<T> {
+        fun <T> build(response: CloseableHttpResponse, converter: (ByteArray) -> T): Response<T> {
             return Response(response, converter)
         }
 

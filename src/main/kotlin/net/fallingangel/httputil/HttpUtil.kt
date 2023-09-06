@@ -269,7 +269,7 @@ object HttpUtil {
          *                                                     .method(Method.GET)
          *                                                     .execute(JSON::parseArray);`</pre>
          */
-        fun <T> execute(converter: (ByteArray) -> Any): Response<T> {
+        fun <T> execute(converter: (ByteArray) -> T): Response<T> {
             val response: CloseableHttpResponse
             return try {
                 log.info("发起请求...")
