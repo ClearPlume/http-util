@@ -11,17 +11,20 @@ import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import net.fallingangel.httputil.method.Method
 import org.apache.http.HttpEntityEnclosingRequest
 import org.apache.http.NameValuePair
+import org.apache.http.client.config.CookieSpecs
 import org.apache.http.client.config.RequestConfig
 import org.apache.http.client.entity.UrlEncodedFormEntity
-import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpRequestBase
+import org.apache.http.cookie.Cookie
 import org.apache.http.entity.ContentType
 import org.apache.http.entity.StringEntity
 import org.apache.http.entity.mime.HttpMultipartMode
 import org.apache.http.entity.mime.MultipartEntityBuilder
 import org.apache.http.entity.mime.content.ContentBody
+import org.apache.http.impl.client.BasicCookieStore
 import org.apache.http.impl.client.HttpClientBuilder
+import org.apache.http.impl.cookie.BasicClientCookie
 import org.apache.http.message.BasicNameValuePair
 import java.io.IOException
 import java.lang.reflect.Array
@@ -75,6 +78,7 @@ object HttpUtil {
     class HttpUtilBuilder {
         private val params: MutableList<Pair<String, Any>> = mutableListOf()
         private val headers: MutableMap<String, String> = mutableMapOf()
+        private val cookies: MutableList<Cookie> = mutableListOf()
 
         private var method = Method.GET
         private var contentType = ContentType.APPLICATION_JSON
@@ -105,6 +109,29 @@ object HttpUtil {
         fun addHeader(header: Map<String, String>): HttpUtilBuilder {
             headers.putAll(header)
             log.info("新增请求头: {}", header)
+            return this
+        }
+
+        fun addCookie(name: String, value: String): HttpUtilBuilder {
+            val cookie = BasicClientCookie(name, value).apply {
+                val currUrl = URI(url)
+                domain = currUrl.host
+                path = currUrl.path
+            }
+            cookies.add(cookie)
+            log.info("新增Cookie: \"{}\" = {}", name, value)
+            return this
+        }
+
+        fun addCookie(cookie: Map<String, String>): HttpUtilBuilder {
+            val currUrl = URI(url)
+            cookies.addAll(cookie.map {
+                BasicClientCookie(it.key, it.value).apply {
+                    domain = currUrl.host
+                    path = currUrl.path
+                }
+            })
+            log.info("新增Cookie: {}", cookie)
             return this
         }
 
@@ -253,11 +280,18 @@ object HttpUtil {
          *                                                     .execute(JSON::parseArray);`</pre>
          */
         fun <T> execute(converter: (ByteArray) -> T): Response<T> {
-            val response: CloseableHttpResponse
             return try {
                 log.info("发起请求...")
-                response = HttpClientBuilder.create().build().execute(buildRequest())
-                Response.build(response, converter)
+                val cookieStore = BasicCookieStore().apply {
+                    addCookies(this@HttpUtilBuilder.cookies.toTypedArray())
+                }
+                Response.build(
+                    HttpClientBuilder.create()
+                            .setDefaultCookieStore(cookieStore)
+                            .build()
+                            .execute(buildRequest()),
+                    converter
+                )
             } catch (e: IOException) {
                 e.printStackTrace()
                 val errorMsg = e.toString()
@@ -276,6 +310,7 @@ object HttpUtil {
 
             // 设置请求配置
             instance.config = RequestConfig.custom()
+                    .setCookieSpec(CookieSpecs.STANDARD)
                     // 连接超时时间
                     .setConnectTimeout(connectTimeout)
                     .setConnectionRequestTimeout(connectTimeout)
@@ -310,7 +345,7 @@ object HttpUtil {
                 // 删除最后一个多余的字符：'&'
                 urlBuilder.deleteCharAt(urlBuilder.length - 1)
                 // 重新设置URL
-                instance.setURI(URI.create(urlBuilder.toString()))
+                instance.uri = URI.create(urlBuilder.toString())
             } else {
                 // 根据请求ContentType决定请求体设置方式
                 // 注：也可能是JSON格式的单个对象，也就是直接设置一个对象，转成JSON

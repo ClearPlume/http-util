@@ -83,4 +83,28 @@ class HttpUtilTest {
         println("response with converter")
         println(response.body)
     }
+
+    @Test
+    fun testCookie() {
+        val response = HttpUtil.configurer()
+                .method(Method.POST)
+                .url("http://127.0.0.1:8080/cookie_test")
+                .addCookie("coo", "123")
+                .addParam("account", "admin")
+                .execute()
+        println("response with cookie")
+        println(response.body)
+    }
+
+    @Test
+    fun testMultiCookie() {
+        val response = HttpUtil.configurer()
+                .method(Method.POST)
+                .url("http://127.0.0.1:8080/cookie_test")
+                .addCookie(mapOf("a" to "1"))
+                .addParam("account", "admin")
+                .execute()
+        println("response with cookie")
+        println(response.body)
+    }
 }
