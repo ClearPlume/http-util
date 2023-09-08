@@ -3,6 +3,7 @@ package net.fallingangel.httputil
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import net.fallingangel.httputil.method.Method
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 
 class HttpUtilTest {
     @Test
@@ -106,5 +107,16 @@ class HttpUtilTest {
                 .execute()
         println("response with cookie")
         println(response.body)
+    }
+
+    @Test
+    fun testHttps() {
+        val response = HttpUtil.configurer()
+                .method(Method.GET)
+                .url("https://randomuser.me/api")
+                .execute()
+        println("response with https")
+        println(response.body)
+        assertEquals(200, response.status.statusCode)
     }
 }
