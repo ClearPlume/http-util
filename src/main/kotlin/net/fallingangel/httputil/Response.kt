@@ -26,6 +26,11 @@ class Response<T> {
         status = response.statusLine
         val entity = response.entity
         haveBody = entity != null
+
+        log.info("==========请求结果==========")
+        log.info("状态：{}", status)
+        log.info("响应体类型：{}", ContentType.get(entity))
+
         if (haveBody) {
             val data = try {
                 EntityUtils.toByteArray(entity)
@@ -34,9 +39,12 @@ class Response<T> {
                 return
             }
             bodyString = String(data, StandardCharsets.UTF_8)
+
+            log.info("响应体字符串：{}", bodyString)
             if (HttpUtil.contentTypeEquals(ContentType.get(entity), ContentType.APPLICATION_JSON)) {
                 if (jsonMapper.isValid(bodyString)) {
                     body = converter(data)
+                    log.info("响应体：{}", body)
                 }
             }
         }
@@ -45,11 +53,6 @@ class Response<T> {
         } catch (e: IOException) {
             e.printStackTrace()
         }
-        log.info("==========请求结果==========")
-        log.info("状态：{}", status)
-        log.info("响应体类型：{}", ContentType.get(entity))
-        log.info("响应体：{}", body)
-        log.info("响应体字符串：{}", bodyString)
         log.info("==========请求结果==========")
         log.warn("===============Http请求结束===============")
     }
