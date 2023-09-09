@@ -66,6 +66,11 @@ class HttpUtilBuilder {
         return this
     }
 
+    fun skipHostnameVerify(): HttpUtilBuilder {
+        hostnameVerifier = HostnameVerifier { _, _ -> true }
+        return this
+    }
+
     fun hostnameVerifier(hostnameVerifier: HostnameVerifier): HttpUtilBuilder {
         this.hostnameVerifier = hostnameVerifier
         return this

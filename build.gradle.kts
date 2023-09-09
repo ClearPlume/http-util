@@ -16,7 +16,7 @@ plugins {
 }
 
 group = "net.fallingangel"
-version = "0.0.6"
+version = "0.0.7"
 
 repositories {
     mavenCentral()
@@ -47,7 +47,7 @@ publishing {
             from(components["java"])
             groupId = "net.fallingangel"
             artifactId = "http-util"
-            version = "0.0.6"
+            version = "0.0.7"
 
             pom {
                 name.set("HttpUtil")
