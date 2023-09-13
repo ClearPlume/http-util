@@ -342,12 +342,12 @@ class HttpUtilBuilder {
             val request = instance as HttpEntityEnclosingRequest
             if (singleParam != null) {
                 val paramStr = (singleParam as? String) ?: jsonMapper.writeValueAsString(singleParam)
-                request.entity = StringEntity(paramStr, StandardCharsets.UTF_8)
+                request.entity = StringEntity(paramStr, contentType)
                 log.info("param: {}", paramStr)
             } else {
                 if (HttpUtil.contentTypeEquals(contentType, ContentType.APPLICATION_JSON)) { // 如果是JSON，把参数装进Map转为json字符串，以StringEntity的形式发送
                     val param = jsonMapper.writeValueAsString(collectParam())
-                    request.entity = StringEntity(param, StandardCharsets.UTF_8)
+                    request.entity = StringEntity(param, contentType)
                     log.info("param: {}", param)
                 } else if (HttpUtil.contentTypeEquals(contentType, ContentType.APPLICATION_FORM_URLENCODED)) { // 如果是普通表单
                     val params = mutableListOf<NameValuePair>()
