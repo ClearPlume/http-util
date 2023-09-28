@@ -1,5 +1,6 @@
 package net.fallingangel.httputil
 
+import org.apache.http.Header
 import org.apache.http.HttpVersion
 import org.apache.http.StatusLine
 import org.apache.http.client.methods.CloseableHttpResponse
@@ -16,6 +17,7 @@ class Response<T> {
     var haveBody = false
 
     lateinit var bodyString: String
+    lateinit var headers: Array<Header>
 
     private constructor(errorMsg: String) {
         status = BasicStatusLine(HttpVersion.HTTP_1_1, 500, "Internal Server Error")
@@ -24,11 +26,13 @@ class Response<T> {
 
     private constructor(response: CloseableHttpResponse, converter: (ByteArray) -> T) {
         status = response.statusLine
+        headers = response.allHeaders
         val entity = response.entity
         haveBody = entity != null
 
         log.info("==========请求结果==========")
         log.info("状态：{}", status)
+        log.info("响应头：{}", jsonMapper.writeValueAsString(response.allHeaders))
         log.info("响应体类型：{}", ContentType.get(entity))
 
         if (haveBody) {
@@ -38,13 +42,18 @@ class Response<T> {
                 e.printStackTrace()
                 return
             }
-            bodyString = String(data, StandardCharsets.UTF_8)
+            if (HttpUtil.contentTypeIsStream(ContentType.get(entity))) {
+                body = converter(data)
+                log.info("响应体为流，不在此展示响应体字符串")
+            } else {
+                bodyString = String(data, StandardCharsets.UTF_8)
+                log.info("响应体字符串：{}", bodyString)
 
-            log.info("响应体字符串：{}", bodyString)
-            if (HttpUtil.contentTypeEquals(ContentType.get(entity), ContentType.APPLICATION_JSON)) {
-                if (jsonMapper.isValid(bodyString)) {
-                    body = converter(data)
-                    log.info("响应体：{}", body)
+                if (HttpUtil.contentTypeEquals(ContentType.get(entity), ContentType.APPLICATION_JSON)) {
+                    if (jsonMapper.isValid(bodyString)) {
+                        body = converter(data)
+                        log.info("响应体：{}", body)
+                    }
                 }
             }
         }

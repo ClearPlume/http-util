@@ -15,6 +15,24 @@ object HttpUtil {
     }
 
     @JvmStatic
+    fun contentTypeIsStream(contentType: ContentType?): Boolean {
+        if (contentType == null) {
+            return false
+        }
+        val streamTypes = arrayOf(
+            ContentType.IMAGE_BMP,
+            ContentType.IMAGE_GIF,
+            ContentType.IMAGE_JPEG,
+            ContentType.IMAGE_PNG,
+            ContentType.IMAGE_SVG,
+            ContentType.IMAGE_TIFF,
+            ContentType.IMAGE_WEBP,
+            ContentType.APPLICATION_OCTET_STREAM
+        )
+        return streamTypes.any { contentTypeEquals(contentType, it) }
+    }
+
+    @JvmStatic
     fun contentTypeEquals(ct1: ContentType?, ct2: ContentType?): Boolean {
         if (ct1 == ct2) {
             return true

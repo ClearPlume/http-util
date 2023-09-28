@@ -250,11 +250,24 @@ class HttpUtilBuilder {
      *                                        .addParam("page_index", 1)
      *                                        .addParam("page_size", 10)
      *                                        .execute(Map.class);
-     * Map body = response.getBody();
-    `</pre> *
+     * Map body = response.getBody();`</pre>
      */
     fun <T : Any> execute(klass: Class<T>): Response<T> {
         return execute { jsonMapper.readValue(it, klass) }
+    }
+
+    /**
+     * 发起请求，直接返回收到的响应数据流，一般用于从下载接口获取文件
+     *
+     * <pre>`Response<ByteArray> response = HttpUtil.configurer()
+     *                                        .url("http://192.168.31.167:8300/mgt/task_log/0")
+     *                                        .addParam("page_index", 1)
+     *                                        .addParam("page_size", 10)
+     *                                        .executeForStream();
+     * ByteArray body = response.getBody();`</pre>
+     */
+    fun executeForStream(): Response<ByteArray> {
+        return execute { it }
     }
 
     /**

@@ -3,6 +3,7 @@ package net.fallingangel.httputil
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import net.fallingangel.httputil.method.Method
 import org.junit.jupiter.api.Test
+import java.io.File
 import kotlin.test.assertEquals
 
 class HttpUtilTest {
@@ -117,6 +118,24 @@ class HttpUtilTest {
                 .execute()
         println("response with https")
         println(response.body)
+        assertEquals(200, response.status.statusCode)
+    }
+
+    @Test
+    fun testStream() {
+        val response = HttpUtil.configurer()
+                .method(Method.GET)
+                .url("https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png")
+                .executeForStream()
+        println("response with stream")
+        println("headers:")
+        response.headers.forEach { println("${it.name}: ${it.value}") }
+        val imageFile = File("jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png")
+        if (imageFile.exists()) {
+            imageFile.delete()
+        }
+        imageFile.createNewFile()
+        imageFile.writeBytes(response.body!!)
         assertEquals(200, response.status.statusCode)
     }
 }
