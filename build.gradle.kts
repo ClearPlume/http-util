@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 val commonsCodecVersion: String by project
 val httpClientVersion: String by project
 val lombokVersion: String by project
@@ -12,7 +10,7 @@ val mvnPwd: String = findProperty("MVN_PWD") as String
 plugins {
     id("maven-publish")
     id("signing")
-    kotlin("jvm") version "1.7.21"
+    kotlin("jvm") version "1.9.10"
 }
 
 group = "net.fallingangel"
@@ -92,10 +90,6 @@ signing {
 
 tasks.test {
     useJUnitPlatform()
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
 }
 
 tasks.withType<Javadoc> {
