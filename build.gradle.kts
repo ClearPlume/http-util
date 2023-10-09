@@ -6,6 +6,8 @@ val jacksonVersion: String by project
 
 val mvnUsername: String = findProperty("MVN_USERNAME") as String
 val mvnPwd: String = findProperty("MVN_PWD") as String
+val priMvnUsername: String = findProperty("PRI_MVN_USERNAME") as String
+val priMvnPwd: String = findProperty("PRI_MVN_PWD") as String
 
 plugins {
     id("maven-publish")
@@ -79,6 +81,16 @@ publishing {
             credentials {
                 username = mvnUsername
                 password = mvnPwd
+            }
+        }
+        mavenCentral {
+            url = uri("https://huoyindata-maven.pkg.coding.net/repository/huoyin-hs/maven/")
+            authentication {
+                create<BasicAuthentication>("basic")
+            }
+            credentials {
+                username = priMvnUsername
+                password = priMvnPwd
             }
         }
     }
