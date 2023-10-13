@@ -39,9 +39,9 @@ class HttpUtilBuilder {
     // mimeType: text/plain
     private val contentTypeStr: ContentType = ContentType.create("text/plain", StandardCharsets.UTF_8)
 
-    private val params: MutableList<Pair<String, Any>> = mutableListOf()
-    private val headers: MutableMap<String, String> = mutableMapOf()
-    private val cookies: MutableList<Cookie> = mutableListOf()
+    private val params = mutableListOf<Pair<String, Any>>()
+    private val headers = mutableMapOf<String, String>()
+    private val cookies = mutableListOf<Cookie>()
 
     private var method = Method.GET
     private var contentType = ContentType.APPLICATION_JSON

@@ -1,27 +1,57 @@
 package net.fallingangel.httputil
 
-import com.fasterxml.jackson.annotation.JsonProperty
-
 data class Result(
-    val code: String,
-    @field:JsonProperty("code_detail")
-    val codeDetail: String,
-    val data: LoginResult,
-    val msg: String?
+    val info: Info,
+    val results: List<User>
 )
 
-data class LoginResult(
-    val token: String,
-    @field:JsonProperty("user_info")
-    val userInfo: UserResult
+data class User(
+    val name: Name,
+    val email: String,
+    val phone: String,
+    val gender: Gender,
+    val location: Location
 )
 
-data class UserResult(
-    @field:JsonProperty("user_id")
-    val userId: Int,
+data class Name(
+    val first: String,
+    val title: String,
+    val last: String
+)
+
+@Suppress("EnumEntryName")
+enum class Gender {
+    male, female
+}
+
+data class Location(
+    val country: String,
+    val state: String,
+    val city: String,
+    val street: Street,
+    val postcode: Any,
+    val timezone: Timezone,
+    val coordinates: Coordinates
+)
+
+data class Street(
     val name: String,
-    val roles: List<String>,
-    val auths: List<String>,
-    @field:JsonProperty("curr_project")
-    val currProject: Int,
+    val number: Int
+)
+
+data class Timezone(
+    val offset: String,
+    val description: String
+)
+
+data class Coordinates(
+    val latitude: String,
+    val longitude: String
+)
+
+data class Info(
+    val version: String,
+    val results: Int,
+    val page: Int,
+    val seed: String
 )

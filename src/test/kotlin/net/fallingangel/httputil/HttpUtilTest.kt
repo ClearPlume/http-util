@@ -3,122 +3,122 @@ package net.fallingangel.httputil
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import net.fallingangel.httputil.method.Method
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertAll
 import java.io.File
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 
 class HttpUtilTest {
     @Test
     fun testDefault() {
         val response = HttpUtil.configurer()
-                .method(Method.POST)
-                .url("http://192.168.31.181:8000/mgt/user/login")
-                .addParam("account", "admin")
-                .addParam(
-                    "password",
-                    "lpy8NmX+BrXckebSoPEhEG4Msii3pkgzG0A/HJx79Xs+EcZtQJCMrGZ8zMS2arjgquc6Lu0vPMry1BbbMltXQoASkYdJfUgH7hcQDepH7ttcenfupXjL+eYMfnRPmJWcJl5/VhfcLx8JDlSQba3UmZNbMXWM7QSKPJtG0JtChO4="
-                )
+                .method(Method.GET)
+                .url("https://randomuser.me/api")
+                .addParam("results", 5)
+                .addParam("exc", "registered,dob,login,id,cell,picture,nat")
                 .execute()
-        println("default response")
-        println(response.body)
+        assertAll(
+            { assertEquals(200, response.status.statusCode) },
+            { assertEquals(2, response.body?.size) },
+            { assertContains(response.body!!, "info") },
+            { assertContains(response.body!!, "results") }
+        )
     }
 
     @Test
     fun testClass() {
         val response = HttpUtil.configurer()
-                .method(Method.POST)
-                .url("http://192.168.31.181:8000/mgt/user/login")
-                .addParam("account", "admin")
-                .addParam(
-                    "password",
-                    "lpy8NmX+BrXckebSoPEhEG4Msii3pkgzG0A/HJx79Xs+EcZtQJCMrGZ8zMS2arjgquc6Lu0vPMry1BbbMltXQoASkYdJfUgH7hcQDepH7ttcenfupXjL+eYMfnRPmJWcJl5/VhfcLx8JDlSQba3UmZNbMXWM7QSKPJtG0JtChO4="
-                )
+                .method(Method.GET)
+                .url("https://randomuser.me/api")
+                .addParam("results", 5)
+                .addParam("exc", "registered,dob,login,id,cell,picture,nat")
                 .execute(Result::class.java)
-        println("response with class")
-        println(response.body)
+        assertAll(
+            { assertEquals(200, response.status.statusCode) },
+            { assertEquals(5, response.body?.results?.size) },
+        )
     }
 
     @Test
     fun testTypeReference() {
         val response = HttpUtil.configurer()
-                .method(Method.POST)
-                .url("http://192.168.31.181:8000/mgt/user/login")
-                .addParam("account", "admin")
-                .addParam(
-                    "password",
-                    "lpy8NmX+BrXckebSoPEhEG4Msii3pkgzG0A/HJx79Xs+EcZtQJCMrGZ8zMS2arjgquc6Lu0vPMry1BbbMltXQoASkYdJfUgH7hcQDepH7ttcenfupXjL+eYMfnRPmJWcJl5/VhfcLx8JDlSQba3UmZNbMXWM7QSKPJtG0JtChO4="
-                )
+                .method(Method.GET)
+                .url("https://randomuser.me/api")
+                .addParam("results", 5)
+                .addParam("exc", "registered,dob,login,id,cell,picture,nat")
                 .execute(jacksonTypeRef<Result>())
-        println("response with type reference")
-        println(response.body)
+        assertAll(
+            { assertEquals(200, response.status.statusCode) },
+            { assertEquals(5, response.body?.results?.size) },
+        )
     }
 
     @Test
     fun testConverter() {
         val response = HttpUtil.configurer()
-                .method(Method.POST)
-                .url("http://192.168.31.181:8000/mgt/user/login")
-                .addParam("account", "admin")
-                .addParam(
-                    "password",
-                    "lpy8NmX+BrXckebSoPEhEG4Msii3pkgzG0A/HJx79Xs+EcZtQJCMrGZ8zMS2arjgquc6Lu0vPMry1BbbMltXQoASkYdJfUgH7hcQDepH7ttcenfupXjL+eYMfnRPmJWcJl5/VhfcLx8JDlSQba3UmZNbMXWM7QSKPJtG0JtChO4="
-                )
+                .method(Method.GET)
+                .url("https://randomuser.me/api")
+                .addParam("results", 5)
+                .addParam("exc", "registered,dob,login,id,cell,picture,nat")
                 .execute {
                     val data = jsonMapper.readTree(it)
                     Result(
-                        data["code"].textValue(),
-                        data["code_detail"].textValue(),
-                        LoginResult(
-                            data["data"]["token"].textValue(),
-                            with(data["data"]["user_info"]) {
-                                UserResult(
-                                    get("user_id").intValue(),
-                                    get("name").textValue(),
-                                    get("roles").elements().asSequence().map { element -> element.textValue() }.toList(),
-                                    get("auths").elements().asSequence().map { element -> element.textValue() }.toList(),
-                                    get("curr_project").intValue()
+                        with(data["info"]) {
+                            Info(
+                                get("version").textValue(),
+                                get("results").intValue(),
+                                get("page").intValue(),
+                                get("seed").textValue()
+                            )
+                        },
+                        with(data["results"]) {
+                            map { user ->
+                                User(
+                                    with(user.get("name")) {
+                                        Name(
+                                            get("first").textValue(),
+                                            get("title").textValue(),
+                                            get("last").textValue()
+                                        )
+                                    },
+                                    user.get("email").textValue(),
+                                    user.get("phone").textValue(),
+                                    Gender.valueOf(user.get("gender").textValue()),
+                                    with(user.get("location")) {
+                                        Location(
+                                            get("country").textValue(),
+                                            get("state").textValue(),
+                                            get("city").textValue(),
+                                            with(get("street")) {
+                                                Street(
+                                                    get("name").textValue(),
+                                                    get("number").intValue()
+                                                )
+                                            },
+                                            get("postcode"),
+                                            with(get("timezone")) {
+                                                Timezone(
+                                                    get("offset").textValue(),
+                                                    get("description").textValue()
+                                                )
+                                            },
+                                            with(get("coordinates")) {
+                                                Coordinates(
+                                                    get("latitude").textValue(),
+                                                    get("longitude").textValue()
+                                                )
+                                            }
+                                        )
+                                    }
                                 )
                             }
-                        ),
-                        data["msg"].asText(),
+                        }
                     )
                 }
-        println("response with converter")
-        println(response.body)
-    }
-
-    @Test
-    fun testCookie() {
-        val response = HttpUtil.configurer()
-                .method(Method.POST)
-                .url("http://127.0.0.1:8080/cookie_test")
-                .addCookie("coo", "123")
-                .addParam("account", "admin")
-                .execute()
-        println("response with cookie")
-        println(response.body)
-    }
-
-    @Test
-    fun testMultiCookie() {
-        val response = HttpUtil.configurer()
-                .method(Method.POST)
-                .url("http://127.0.0.1:8080/cookie_test")
-                .addCookie(mapOf("a" to "1"))
-                .addParam("account", "admin")
-                .execute()
-        println("response with cookie")
-        println(response.body)
-    }
-
-    @Test
-    fun testHttps() {
-        val response = HttpUtil.configurer()
-                .method(Method.GET)
-                .url("https://randomuser.me/api")
-                .execute()
-        println("response with https")
-        println(response.body)
-        assertEquals(200, response.status.statusCode)
+        assertAll(
+            { assertEquals(200, response.status.statusCode) },
+            { assertEquals(5, response.body?.results?.size) },
+        )
     }
 
     @Test
@@ -137,5 +137,8 @@ class HttpUtilTest {
         imageFile.createNewFile()
         imageFile.writeBytes(response.body!!)
         assertEquals(200, response.status.statusCode)
+        assertEquals(1435417, response.body?.size)
+        assertEquals(1435417, imageFile.length())
+        imageFile.delete()
     }
 }

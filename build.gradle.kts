@@ -4,10 +4,10 @@ val lombokVersion: String by project
 val logbackVersion: String by project
 val jacksonVersion: String by project
 
-val mvnUsername: String = findProperty("MVN_USERNAME") as String
-val mvnPwd: String = findProperty("MVN_PWD") as String
-val priMvnUsername: String = findProperty("PRI_MVN_USERNAME") as String
-val priMvnPwd: String = findProperty("PRI_MVN_PWD") as String
+val mvnUsername = findProperty("MVN_USERNAME") as String
+val mvnPwd = findProperty("MVN_PWD") as String
+val priMvnUsername = findProperty("PRI_MVN_USERNAME") as String
+val priMvnPwd = findProperty("PRI_MVN_PWD") as String
 
 plugins {
     id("maven-publish")
@@ -25,7 +25,6 @@ repositories {
 dependencies {
     api("org.apache.httpcomponents:httpmime:$httpClientVersion")
 
-    implementation("commons-codec:commons-codec:$commonsCodecVersion")
     implementation("org.apache.httpcomponents:httpclient:$httpClientVersion")
     implementation("org.projectlombok:lombok:$lombokVersion")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
