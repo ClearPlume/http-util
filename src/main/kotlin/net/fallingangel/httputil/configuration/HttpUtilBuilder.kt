@@ -156,9 +156,10 @@ class HttpUtilBuilder {
      *
      * @param timeout 单位毫秒，默认值为0，永不超时
      */
-    fun connectTimeout(timeout: Int) {
+    fun connectTimeout(timeout: Int): HttpUtilBuilder {
         connectTimeout = timeout
         log.info("设置连接超时时间：$connectTimeout")
+        return this
     }
 
     /**
@@ -166,9 +167,10 @@ class HttpUtilBuilder {
      *
      * @param timeout 单位毫秒，默认值为0，永不超时
      */
-    fun readTimeout(timeout: Int) {
+    fun readTimeout(timeout: Int): HttpUtilBuilder {
         readTimeout = timeout
         log.info("设置获取数据超时时间：$readTimeout")
+        return this
     }
 
     /**
