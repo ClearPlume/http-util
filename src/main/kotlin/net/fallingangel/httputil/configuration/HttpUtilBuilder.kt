@@ -452,7 +452,7 @@ class HttpUtilBuilder {
         if (value != null) {
             if (value.javaClass.isArray) {
                 val values = mutableListOf<Any>()
-                for (i in 0 until Array.getLength(value)) {
+                for (i in 0..<Array.getLength(value)) {
                     values.add(Array.get(value, i))
                 }
                 return values
