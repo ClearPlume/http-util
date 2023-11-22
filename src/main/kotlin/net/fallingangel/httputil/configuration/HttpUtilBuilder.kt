@@ -8,7 +8,11 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.databind.node.JsonNodeType
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
-import net.fallingangel.httputil.*
+import net.fallingangel.httputil.HttpUtil
+import net.fallingangel.httputil.Response
+import net.fallingangel.httputil.exception.NetException
+import net.fallingangel.httputil.jsonMapper
+import net.fallingangel.httputil.log
 import net.fallingangel.httputil.method.Method
 import org.apache.http.HttpEntityEnclosingRequest
 import org.apache.http.NameValuePair
@@ -28,7 +32,6 @@ import org.apache.http.impl.client.BasicCookieStore
 import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.impl.cookie.BasicClientCookie
 import org.apache.http.message.BasicNameValuePair
-import java.io.IOException
 import java.lang.reflect.Array
 import java.net.URI
 import java.nio.charset.StandardCharsets
@@ -296,7 +299,7 @@ class HttpUtilBuilder {
                         .execute(buildRequest()),
                 converter
             )
-        } catch (e: IOException) {
+        } catch (e: NetException) {
             e.printStackTrace()
             val errorMsg = e.toString()
             log.error("请求失败，错误信息如下：")

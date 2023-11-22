@@ -7,7 +7,6 @@ import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.entity.ContentType
 import org.apache.http.message.BasicStatusLine
 import org.apache.http.util.EntityUtils
-import java.io.IOException
 import java.nio.charset.StandardCharsets
 
 @Suppress("MemberVisibilityCanBePrivate")
@@ -36,12 +35,7 @@ class Response<T> {
         log.info("响应体类型：{}", ContentType.get(entity))
 
         if (haveBody) {
-            val data = try {
-                EntityUtils.toByteArray(entity)
-            } catch (e: IOException) {
-                e.printStackTrace()
-                return
-            }
+            val data = EntityUtils.toByteArray(entity)
             if (HttpUtil.contentTypeIsStream(ContentType.get(entity))) {
                 body = converter(data)
                 log.info("响应体为流，不在此展示响应体字符串")
@@ -57,11 +51,7 @@ class Response<T> {
                 }
             }
         }
-        try {
-            response.close()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
+        response.close()
         log.info("==========请求结果==========")
         log.warn("===============Http请求结束===============")
     }
