@@ -12,11 +12,12 @@ val priMvnPwd = findProperty("PRI_MVN_PWD") as String
 plugins {
     id("maven-publish")
     id("signing")
+
     kotlin("jvm") version "1.9.10"
 }
 
 group = "net.fallingangel"
-version = "0.0.10"
+version = "0.0.11"
 
 repositories {
     mavenCentral()
@@ -46,7 +47,7 @@ publishing {
             from(components["java"])
             groupId = "net.fallingangel"
             artifactId = "http-util"
-            version = "0.0.10"
+            version = "0.0.11"
 
             pom {
                 name.set("HttpUtil")
