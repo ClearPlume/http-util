@@ -30,6 +30,7 @@ import org.apache.http.entity.mime.HttpMultipartMode
 import org.apache.http.entity.mime.MultipartEntityBuilder
 import org.apache.http.entity.mime.content.ContentBody
 import org.apache.http.impl.client.BasicCookieStore
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler
 import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.impl.cookie.BasicClientCookie
 import org.apache.http.message.BasicNameValuePair
@@ -55,7 +56,7 @@ class HttpUtilBuilder {
     private var sslContext: SSLContext? = null
     private var socketFactory: LayeredConnectionSocketFactory? = null
     private var allowedRetryCount = 0
-    private var retryHandler: HttpRequestRetryHandler? = null
+    private var retryHandler: HttpRequestRetryHandler = DefaultHttpRequestRetryHandler.INSTANCE
 
     private var singleParam: Any? = null
     private lateinit var url: String
@@ -318,15 +319,13 @@ class HttpUtilBuilder {
                     allowed
                 }
             }
-            if (retryHandler != null) {
-                clientBuilder.setRetryHandler(retryHandler)
-            }
             Response.build(
                 clientBuilder
                         .setDefaultCookieStore(cookieStore)
                         .setSSLHostnameVerifier(hostnameVerifier)
                         .setSSLContext(sslContext)
                         .setSSLSocketFactory(socketFactory)
+                        .setRetryHandler(retryHandler)
                         .build()
                         .execute(buildRequest()),
                 converter
