@@ -16,6 +16,7 @@ import net.fallingangel.httputil.log
 import net.fallingangel.httputil.method.Method
 import org.apache.http.HttpEntityEnclosingRequest
 import org.apache.http.NameValuePair
+import org.apache.http.client.HttpRequestRetryHandler
 import org.apache.http.client.config.CookieSpecs
 import org.apache.http.client.config.RequestConfig
 import org.apache.http.client.entity.UrlEncodedFormEntity
@@ -53,6 +54,8 @@ class HttpUtilBuilder {
     private var hostnameVerifier: HostnameVerifier? = null
     private var sslContext: SSLContext? = null
     private var socketFactory: LayeredConnectionSocketFactory? = null
+    private var allowedRetryCount = 0
+    private var retryHandler: HttpRequestRetryHandler? = null
 
     private var singleParam: Any? = null
     private lateinit var url: String
@@ -71,21 +74,25 @@ class HttpUtilBuilder {
 
     fun skipHostnameVerify(): HttpUtilBuilder {
         hostnameVerifier = HostnameVerifier { _, _ -> true }
+        log.info("设置跳过主机验证")
         return this
     }
 
     fun hostnameVerifier(hostnameVerifier: HostnameVerifier): HttpUtilBuilder {
         this.hostnameVerifier = hostnameVerifier
+        log.info("设置主机验证器")
         return this
     }
 
     fun sslContext(sslContext: SSLContext): HttpUtilBuilder {
         this.sslContext = sslContext
+        log.info("设置SSLContext")
         return this
     }
 
     fun socketFactory(socketFactory: LayeredConnectionSocketFactory): HttpUtilBuilder {
         this.socketFactory = socketFactory
+        log.info("设置SocketFactory")
         return this
     }
 
@@ -173,6 +180,18 @@ class HttpUtilBuilder {
     fun readTimeout(timeout: Int): HttpUtilBuilder {
         readTimeout = timeout
         log.info("设置获取数据超时时间：$readTimeout")
+        return this
+    }
+
+    fun allowedRetryCount(count: Int): HttpUtilBuilder {
+        allowedRetryCount = count
+        log.info("设置请求失败后的重试次数：$allowedRetryCount")
+        return this
+    }
+
+    fun retryHandler(retryHandler: HttpRequestRetryHandler): HttpUtilBuilder {
+        this.retryHandler = retryHandler
+        log.info("设置RetryHandler")
         return this
     }
 
@@ -289,8 +308,21 @@ class HttpUtilBuilder {
             val cookieStore = BasicCookieStore().apply {
                 addCookies(this@HttpUtilBuilder.cookies.toTypedArray())
             }
+            val clientBuilder = HttpClientBuilder.create()
+            if (allowedRetryCount != 0) {
+                clientBuilder.setRetryHandler { _, count, _ ->
+                    val allowed = count <= allowedRetryCount
+                    if (allowed) {
+                        log.info("retry $count")
+                    }
+                    allowed
+                }
+            }
+            if (retryHandler != null) {
+                clientBuilder.setRetryHandler(retryHandler)
+            }
             Response.build(
-                HttpClientBuilder.create()
+                clientBuilder
                         .setDefaultCookieStore(cookieStore)
                         .setSSLHostnameVerifier(hostnameVerifier)
                         .setSSLContext(sslContext)
@@ -318,8 +350,9 @@ class HttpUtilBuilder {
         // 设置请求配置
         instance.config = RequestConfig.custom()
                 .setCookieSpec(CookieSpecs.STANDARD)
-                // 连接超时时间
+                // 三次握手创建连接超时时间
                 .setConnectTimeout(connectTimeout)
+                // 从连接池中获取连接的时间
                 .setConnectionRequestTimeout(connectTimeout)
                 // 获取数据超时时间
                 .setSocketTimeout(readTimeout)

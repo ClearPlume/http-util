@@ -5,8 +5,10 @@ import net.fallingangel.httputil.method.Method
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import java.io.File
+import java.net.UnknownHostException
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class HttpUtilTest {
     @Test
@@ -140,5 +142,22 @@ class HttpUtilTest {
         assertEquals(1435417, response.body?.size)
         assertEquals(1435417, imageFile.length())
         imageFile.delete()
+    }
+
+    @Test
+    fun testTimeoutAndRetry() {
+        val errorAddress = "idp.ah.cegn.cn"
+        val exception = assertFailsWith(UnknownHostException::class) {
+            HttpUtil.configurer()
+                    .method(Method.GET)
+                    .connectTimeout(10)
+                    .readTimeout(10)
+                    .allowedRetryCount(1)
+                    .url("https://$errorAddress/api")
+                    .addParam("results", 5)
+                    .addParam("exc", "registered,dob,login,id,cell,picture,nat")
+                    .execute(Result::class.java)
+        }
+        assertContains(exception.message ?: "", errorAddress)
     }
 }
