@@ -22,6 +22,7 @@ import org.apache.http.client.config.RequestConfig
 import org.apache.http.client.entity.UrlEncodedFormEntity
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpRequestBase
+import org.apache.http.conn.DnsResolver
 import org.apache.http.conn.socket.LayeredConnectionSocketFactory
 import org.apache.http.cookie.Cookie
 import org.apache.http.entity.ContentType
@@ -35,8 +36,11 @@ import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.impl.cookie.BasicClientCookie
 import org.apache.http.message.BasicNameValuePair
 import java.lang.reflect.Array
+import java.net.InetAddress
 import java.net.URI
 import java.nio.charset.StandardCharsets
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLContext
 
@@ -57,6 +61,8 @@ class HttpUtilBuilder {
     private var socketFactory: LayeredConnectionSocketFactory? = null
     private var allowedRetryCount = 0
     private var retryHandler: HttpRequestRetryHandler = DefaultHttpRequestRetryHandler.INSTANCE
+    private var dnsResolveTimeout = 0
+    private var dnsResolver: DnsResolver? = null
 
     private var singleParam: Any? = null
     private lateinit var url: String
@@ -196,6 +202,18 @@ class HttpUtilBuilder {
         return this
     }
 
+    fun dnsResolveTimeout(timeout: Int): HttpUtilBuilder {
+        this.dnsResolveTimeout = timeout
+        log.info("设置DNS解析超时时间：$dnsResolveTimeout")
+        return this
+    }
+
+    fun dnsResolver(dnsResolver: DnsResolver): HttpUtilBuilder {
+        this.dnsResolver = dnsResolver
+        log.info("设置DnsResolver")
+        return this
+    }
+
     /**
      * 发起请求，结果以`Map<String, Object>`的形式处理
      *
@@ -318,6 +336,16 @@ class HttpUtilBuilder {
                     }
                     allowed
                 }
+            }
+            if (dnsResolveTimeout != 0) {
+                clientBuilder.setDnsResolver {
+                    CompletableFuture
+                            .supplyAsync { InetAddress.getAllByName(it) }
+                            .get(dnsResolveTimeout.toLong(), TimeUnit.MILLISECONDS)
+                }
+            }
+            if (dnsResolver != null) {
+                clientBuilder.setDnsResolver(dnsResolver)
             }
             Response.build(
                 clientBuilder

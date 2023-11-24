@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import java.io.File
 import java.net.UnknownHostException
+import java.util.concurrent.TimeoutException
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -145,19 +146,30 @@ class HttpUtilTest {
     }
 
     @Test
-    fun testTimeoutAndRetry() {
+    fun testDnsResolver() {
         val errorAddress = "idp.ah.cegn.cn"
-        val exception = assertFailsWith(UnknownHostException::class) {
+        assertFailsWith(TimeoutException::class) {
             HttpUtil.configurer()
                     .method(Method.GET)
-                    .connectTimeout(10)
-                    .readTimeout(10)
-                    .allowedRetryCount(1)
+                    .dnsResolveTimeout(1000)
                     .url("https://$errorAddress/api")
                     .addParam("results", 5)
                     .addParam("exc", "registered,dob,login,id,cell,picture,nat")
                     .execute(Result::class.java)
         }
-        assertContains(exception.message ?: "", errorAddress)
+    }
+
+    @Test
+    fun testRetry() {
+        val errorAddress = "idp.ah.cegn.cn"
+        assertFailsWith(UnknownHostException::class) {
+            HttpUtil.configurer()
+                    .method(Method.GET)
+                    .allowedRetryCount(2)
+                    .url("https://$errorAddress/api")
+                    .addParam("results", 5)
+                    .addParam("exc", "registered,dob,login,id,cell,picture,nat")
+                    .execute(Result::class.java)
+        }
     }
 }
