@@ -1,7 +1,6 @@
-package net.fallingangel.httputil
+package net.fallingangel.httputil.utils
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jsonMapper
@@ -30,6 +29,3 @@ internal val jsonMapper by lazy {
         addModule(kotlinModule)
     }
 }
-
-@Suppress("unused")
-typealias TypeReference<T> = TypeReference<T>

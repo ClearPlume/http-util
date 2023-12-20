@@ -11,9 +11,9 @@ import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import net.fallingangel.httputil.HttpUtil
 import net.fallingangel.httputil.Response
 import net.fallingangel.httputil.exception.NetException
-import net.fallingangel.httputil.jsonMapper
-import net.fallingangel.httputil.log
 import net.fallingangel.httputil.method.Method
+import net.fallingangel.httputil.utils.jsonMapper
+import net.fallingangel.httputil.utils.log
 import org.apache.http.HttpEntityEnclosingRequest
 import org.apache.http.NameValuePair
 import org.apache.http.client.HttpRequestRetryHandler

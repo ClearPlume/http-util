@@ -2,6 +2,7 @@ package net.fallingangel.httputil
 
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import net.fallingangel.httputil.method.Method
+import net.fallingangel.httputil.utils.jsonMapper
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import java.io.File

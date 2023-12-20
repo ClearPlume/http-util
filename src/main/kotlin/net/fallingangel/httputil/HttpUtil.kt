@@ -1,10 +1,15 @@
 package net.fallingangel.httputil
 
+import com.fasterxml.jackson.core.type.TypeReference
 import net.fallingangel.httputil.configuration.HttpUtilBuilder
+import net.fallingangel.httputil.utils.log
 import org.apache.http.entity.ContentType
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
+
+@Suppress("unused")
+typealias TypeReference<T> = TypeReference<T>
 
 @Suppress("unused")
 object HttpUtil {
