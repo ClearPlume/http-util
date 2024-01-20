@@ -17,7 +17,7 @@ plugins {
 }
 
 group = "net.fallingangel"
-version = "0.0.12"
+version = "0.0.13"
 
 repositories {
     mavenCentral()
@@ -30,6 +30,7 @@ dependencies {
     implementation("org.projectlombok:lombok:$lombokVersion")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
 
     testImplementation(kotlin("test"))
 }
@@ -47,7 +48,7 @@ publishing {
             from(components["java"])
             groupId = "net.fallingangel"
             artifactId = "http-util"
-            version = "0.0.12"
+            version = project.version as String
 
             pom {
                 name.set("HttpUtil")

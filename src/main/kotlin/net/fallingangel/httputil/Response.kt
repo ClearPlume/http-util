@@ -34,7 +34,13 @@ class Response<T> {
 
         log.info("==========请求结果==========")
         log.info("状态：{}", status)
-        log.info("响应头：{}", jsonMapper.writeValueAsString(response.allHeaders))
+        log.info(
+            "响应头：{}", jsonMapper.writeValueAsString(
+                response.allHeaders
+                        .map { it.name to it.value }
+                        .associate { it }
+            )
+        )
         log.info("响应体类型：{}", ContentType.get(entity))
 
         if (haveBody) {

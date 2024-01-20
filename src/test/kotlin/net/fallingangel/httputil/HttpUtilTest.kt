@@ -7,6 +7,10 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import java.io.File
 import java.net.UnknownHostException
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.util.Date
 import java.util.concurrent.TimeoutException
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -172,5 +176,20 @@ class HttpUtilTest {
                     .addParam("exc", "registered,dob,login,id,cell,picture,nat")
                     .execute(Result::class.java)
         }
+    }
+
+    @Test
+    fun testTime() {
+        val response = HttpUtil.configurer()
+                .method(Method.POST)
+                .url("https://randomuser.me/api")
+                .addParam("results", 5)
+                .addParam("exc", "registered,dob,login,id,cell,picture,nat")
+                .addParam("date", Date())
+                .addParam("date8", LocalDate.now())
+                .addParam("time", LocalTime.now())
+                .addParam("datetime", LocalDateTime.now())
+                .execute(Result::class.java)
+        assertEquals(404, response.status.statusCode)
     }
 }

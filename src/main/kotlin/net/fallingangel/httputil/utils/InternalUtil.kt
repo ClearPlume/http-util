@@ -3,6 +3,7 @@ package net.fallingangel.httputil.utils
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jsonMapper
 import com.fasterxml.jackson.module.kotlin.kotlinModule
 import org.slf4j.Logger
@@ -27,5 +28,6 @@ internal val jsonMapper by lazy {
             serializationInclusion(JsonInclude.Include.USE_DEFAULTS)
         }
         addModule(kotlinModule)
+        addModule(JavaTimeModule())
     }
 }
