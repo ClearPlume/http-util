@@ -17,7 +17,7 @@ plugins {
 }
 
 group = "net.fallingangel"
-version = "0.0.13"
+version = "0.0.14"
 
 repositories {
     mavenCentral()
