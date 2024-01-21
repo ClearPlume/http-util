@@ -1,12 +1,9 @@
 package net.fallingangel.httputil.method
 
-import org.apache.http.client.methods.HttpGet
-import org.apache.http.client.methods.HttpPost
-import org.apache.http.client.methods.HttpPut
-import org.apache.http.client.methods.HttpRequestBase
+import org.apache.http.client.methods.*
 
 enum class Method {
-    GET, POST, PUT, DELETE;
+    GET, POST, PUT, DELETE, PATCH;
 
     companion object {
         fun instance(method: Method): HttpRequestBase {
@@ -15,6 +12,7 @@ enum class Method {
                 POST -> HttpPost()
                 PUT -> HttpPut()
                 DELETE -> HttpDelete()
+                PATCH -> HttpPatch()
             }
         }
     }

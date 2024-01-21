@@ -196,7 +196,7 @@ class HttpUtilTest {
     @Test
     fun testPOJO() {
         val response = HttpUtil.configurer()
-                .method(Method.POST)
+                .method(Method.PATCH)
                 .url("https://randomuser.me/api")
                 .addParam("results", 5)
                 .addParam("exc", "registered,dob,login,id,cell,picture,nat")
