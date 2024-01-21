@@ -10,7 +10,7 @@ import java.net.UnknownHostException
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.Date
+import java.util.*
 import java.util.concurrent.TimeoutException
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -189,6 +189,18 @@ class HttpUtilTest {
                 .addParam("date8", LocalDate.now())
                 .addParam("time", LocalTime.now())
                 .addParam("datetime", LocalDateTime.now())
+                .execute(Result::class.java)
+        assertEquals(404, response.status.statusCode)
+    }
+
+    @Test
+    fun testPOJO() {
+        val response = HttpUtil.configurer()
+                .method(Method.POST)
+                .url("https://randomuser.me/api")
+                .addParam("results", 5)
+                .addParam("exc", "registered,dob,login,id,cell,picture,nat")
+                .addParam("param", CamelCase(1, LocalDateTime.now()))
                 .execute(Result::class.java)
         assertEquals(404, response.status.statusCode)
     }

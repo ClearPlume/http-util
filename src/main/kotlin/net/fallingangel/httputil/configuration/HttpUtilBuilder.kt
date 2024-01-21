@@ -148,7 +148,7 @@ class HttpUtilBuilder {
             log.info("参数<{}>的值<{}>为null或者\"null\"，已将其忽略！", name, value)
         } else {
             params.add(Pair(name, value))
-            log.info("新增参数: \"{}\" = {}", name, value)
+            log.info("新增参数: \"{}\" = {}", name, jsonMapper.writeValueAsString(value))
         }
         return this
     }
