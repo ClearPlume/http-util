@@ -57,6 +57,7 @@ object HttpUtil {
      */
     @JvmStatic
     @JvmOverloads
+    @JvmName(name = "hostCanConnect")
     fun canConnect(address: String, timeout: Int = 300): Boolean {
         val (ip, port) = address.split(':')
         return canConnect(ip, port.toInt(), timeout)
