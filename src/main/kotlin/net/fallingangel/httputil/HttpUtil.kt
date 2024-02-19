@@ -52,6 +52,19 @@ object HttpUtil {
     /**
      * 测试地址"host:port"是否可以连接，默认超时时间300毫秒
      *
+     * @param address host:port，如："blog.csdn.net:1234", "69.230.200.111:8522"
+     * @param timeout 超时时间
+     */
+    @JvmStatic
+    @JvmOverloads
+    fun canConnect(address: String, timeout: Int = 300): Boolean {
+        val (ip, port) = address.split(':')
+        return canConnect(ip, port.toInt(), timeout)
+    }
+
+    /**
+     * 测试地址"host:port"是否可以连接，默认超时时间300毫秒
+     *
      * @param host 不带协议的ip地址或者域名，如："blog.csdn.net", "69.230.200.111"
      * @param port 端口号
      * @param timeout 超时时间

@@ -47,15 +47,15 @@ class Response<T> {
             val data = EntityUtils.toByteArray(entity)
             if (HttpUtil.contentTypeIsStream(ContentType.get(entity))) {
                 body = converter(data)
-                // log.info("响应体为流，不在此展示响应体字符串")
+                log.info("响应体为流，不在此展示响应体字符串")
             } else {
                 bodyString = String(data, StandardCharsets.UTF_8)
-                // log.info("响应体字符串：{}", bodyString)
+                log.info("响应体字符串：{}", bodyString)
 
                 if (HttpUtil.contentTypeEquals(ContentType.get(entity), ContentType.APPLICATION_JSON)) {
                     if (jsonMapper.isValid(bodyString)) {
                         body = converter(data)
-                        // log.info("响应体：{}", body)
+                        log.info("响应体：{}", body)
                     }
                 }
             }

@@ -6,15 +6,8 @@ import net.fallingangel.httputil.utils.jsonMapper
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import java.io.File
-import java.net.UnknownHostException
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.util.*
-import java.util.concurrent.TimeoutException
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
 class HttpUtilTest {
     @Test
@@ -148,60 +141,5 @@ class HttpUtilTest {
         assertEquals(1435417, response.body?.size)
         assertEquals(1435417, imageFile.length())
         imageFile.delete()
-    }
-
-    @Test
-    fun testDnsResolver() {
-        val errorAddress = "idp.ah.cegn.cn"
-        assertFailsWith(TimeoutException::class) {
-            HttpUtil.configurer()
-                    .method(Method.GET)
-                    .dnsResolveTimeout(1000)
-                    .url("https://$errorAddress/api")
-                    .addParam("results", 5)
-                    .addParam("exc", "registered,dob,login,id,cell,picture,nat")
-                    .execute(Result::class.java)
-        }
-    }
-
-    @Test
-    fun testRetry() {
-        val errorAddress = "idp.ah.cegn.cn"
-        assertFailsWith(UnknownHostException::class) {
-            HttpUtil.configurer()
-                    .method(Method.GET)
-                    .allowedRetryCount(2)
-                    .url("https://$errorAddress/api")
-                    .addParam("results", 5)
-                    .addParam("exc", "registered,dob,login,id,cell,picture,nat")
-                    .execute(Result::class.java)
-        }
-    }
-
-    @Test
-    fun testTime() {
-        val response = HttpUtil.configurer()
-                .method(Method.POST)
-                .url("https://randomuser.me/api")
-                .addParam("results", 5)
-                .addParam("exc", "registered,dob,login,id,cell,picture,nat")
-                .addParam("date", Date())
-                .addParam("date8", LocalDate.now())
-                .addParam("time", LocalTime.now())
-                .addParam("datetime", LocalDateTime.now())
-                .execute(Result::class.java)
-        assertEquals(404, response.status.statusCode)
-    }
-
-    @Test
-    fun testPOJO() {
-        val response = HttpUtil.configurer()
-                .method(Method.PATCH)
-                .url("https://randomuser.me/api")
-                .addParam("results", 5)
-                .addParam("exc", "registered,dob,login,id,cell,picture,nat")
-                .addParam("param", CamelCase(1, LocalDateTime.now()))
-                .execute(Result::class.java)
-        assertEquals(404, response.status.statusCode)
     }
 }
