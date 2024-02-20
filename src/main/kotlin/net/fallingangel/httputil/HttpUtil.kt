@@ -56,9 +56,7 @@ object HttpUtil {
      * @param timeout 超时时间
      */
     @JvmStatic
-    @JvmOverloads
-    @JvmName(name = "hostCanConnect")
-    fun canConnect(address: String, timeout: Int = 300): Boolean {
+    fun canConnect(address: String, timeout: Int): Boolean {
         val (ip, port) = address.split(':')
         return canConnect(ip, port.toInt(), timeout)
     }
@@ -71,8 +69,7 @@ object HttpUtil {
      * @param timeout 超时时间
      */
     @JvmStatic
-    @JvmOverloads
-    fun canConnect(host: String, port: Int, timeout: Int = 300): Boolean {
+    fun canConnect(host: String, port: Int, timeout: Int): Boolean {
         val socket = Socket()
         try {
             socket.connect(InetSocketAddress(host, port), timeout)
