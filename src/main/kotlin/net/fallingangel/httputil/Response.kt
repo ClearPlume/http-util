@@ -14,15 +14,18 @@ import java.nio.charset.StandardCharsets
 
 @Suppress("MemberVisibilityCanBePrivate")
 class Response<T> {
-    var status: StatusLine
-    var body: T? = null
-    var haveBody = false
+    private val status: StatusLine
+    private val haveBody: Boolean
 
-    lateinit var bodyString: String
-    lateinit var headers: Array<Header>
+    val body: T?
+    val bodyString: String?
+    val headers: Array<Header>
 
     private constructor(errorMsg: String) {
         status = BasicStatusLine(HttpVersion.HTTP_1_1, 500, "Internal Server Error")
+        headers = emptyArray()
+        haveBody = false
+        body = null
         bodyString = errorMsg
     }
 
@@ -47,6 +50,7 @@ class Response<T> {
             val data = EntityUtils.toByteArray(entity)
             if (HttpUtil.contentTypeIsStream(ContentType.get(entity))) {
                 body = converter(data)
+                bodyString = null
                 log.info("响应体为流，不在此展示响应体字符串")
             } else {
                 bodyString = String(data, StandardCharsets.UTF_8)
@@ -56,9 +60,16 @@ class Response<T> {
                     if (jsonMapper.isValid(bodyString)) {
                         body = converter(data)
                         log.info("响应体：{}", body)
+                    } else {
+                        body = null
                     }
+                } else {
+                    body = null
                 }
             }
+        } else {
+            body = null
+            bodyString = null
         }
         response.close()
         log.info("==========请求结果==========")
