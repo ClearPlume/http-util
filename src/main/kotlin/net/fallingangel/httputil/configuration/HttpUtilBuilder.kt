@@ -11,6 +11,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import net.fallingangel.httputil.HttpUtil
 import net.fallingangel.httputil.Response
 import net.fallingangel.httputil.exception.NetException
+import net.fallingangel.httputil.logging.Level
 import net.fallingangel.httputil.method.Method
 import net.fallingangel.httputil.utils.jsonMapper
 import net.fallingangel.httputil.utils.log
@@ -52,6 +53,7 @@ class HttpUtilBuilder {
     private val cookies = mutableListOf<Cookie>()
 
     private var method = Method.GET
+    private var logLevel = Level.ALL
     private var contentType = ContentType.APPLICATION_JSON
     private var connectTimeout = 0
     private var readTimeout = 0
@@ -65,6 +67,12 @@ class HttpUtilBuilder {
 
     private var singleParam: Any? = null
     private lateinit var url: String
+
+    fun logLevel(logLevel: Level): HttpUtilBuilder {
+        this.logLevel = logLevel
+        log.info("logLevel: {}", logLevel)
+        return this
+    }
 
     fun url(url: String): HttpUtilBuilder {
         this.url = url
@@ -357,14 +365,15 @@ class HttpUtilBuilder {
                         .setSSLSocketFactory(socketFactory)
                         .build()
                         .execute(buildRequest()),
-                converter
+                converter,
+                logLevel
             )
         } catch (e: NetException) {
             e.printStackTrace()
             val errorMsg = e.toString()
             log.error("请求失败，错误信息如下：")
             log.error(errorMsg)
-            Response.build(errorMsg)
+            Response.build(errorMsg, logLevel)
         }
     }
 

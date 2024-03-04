@@ -1,6 +1,7 @@
 package net.fallingangel.httputil
 
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
+import net.fallingangel.httputil.logging.Level
 import net.fallingangel.httputil.method.Method
 import net.fallingangel.httputil.utils.jsonMapper
 import org.junit.jupiter.api.Test
@@ -141,5 +142,16 @@ class HttpUtilTest {
         assertEquals(1435417, response.body?.size)
         assertEquals(1435417, imageFile.length())
         imageFile.delete()
+    }
+
+    @Test
+    fun testLogLevel() {
+        HttpUtil.configurer()
+                .method(Method.GET)
+                .url("https://randomuser.me/api")
+                .addParam("results", 5)
+                .addParam("exc", "registered,dob,login,id,cell,picture,nat")
+                .logLevel(Level.ALL)
+                .execute()
     }
 }

@@ -1,5 +1,6 @@
 package net.fallingangel.httputil
 
+import net.fallingangel.httputil.logging.Level
 import net.fallingangel.httputil.utils.isValid
 import net.fallingangel.httputil.utils.jsonMapper
 import net.fallingangel.httputil.utils.log
@@ -14,14 +15,16 @@ import java.nio.charset.StandardCharsets
 
 @Suppress("MemberVisibilityCanBePrivate")
 class Response<T> {
-    private val status: StatusLine
+    private val logLevel: Level
     private val haveBody: Boolean
 
+    val status: StatusLine
     val body: T?
     val bodyString: String?
     val headers: Array<Header>
 
-    private constructor(errorMsg: String) {
+    private constructor(errorMsg: String, logLevel: Level) {
+        this.logLevel = logLevel
         status = BasicStatusLine(HttpVersion.HTTP_1_1, 500, "Internal Server Error")
         headers = emptyArray()
         haveBody = false
@@ -29,37 +32,50 @@ class Response<T> {
         bodyString = errorMsg
     }
 
-    private constructor(response: CloseableHttpResponse, converter: (ByteArray) -> T) {
+    private constructor(response: CloseableHttpResponse, converter: (ByteArray) -> T, logLevel: Level) {
+        this.logLevel = logLevel
         status = response.statusLine
         headers = response.allHeaders
         val entity = response.entity
         haveBody = entity != null
 
-        log.info("==========请求结果==========")
-        log.info("状态：{}", status)
-        log.info(
-            "响应头：{}", jsonMapper.writeValueAsString(
-                response.allHeaders
-                        .map { it.name to it.value }
-                        .associate { it }
-            )
-        )
-        log.info("响应体类型：{}", ContentType.get(entity))
+        if (logLevel > Level.NONE) {
+            log.info("==========请求结果==========")
+            log.info("状态：{}", status)
+
+            if (logLevel > Level.BASIC) {
+                log.info(
+                    "响应头：{}", jsonMapper.writeValueAsString(
+                        response.allHeaders
+                                .map { it.name to it.value }
+                                .associate { it }
+                    )
+                )
+            }
+
+            log.info("响应体类型：{}", ContentType.get(entity))
+        }
 
         if (haveBody) {
             val data = EntityUtils.toByteArray(entity)
             if (HttpUtil.contentTypeIsStream(ContentType.get(entity))) {
                 body = converter(data)
                 bodyString = null
-                log.info("响应体为流，不在此展示响应体字符串")
+                if (logLevel > Level.BASIC) {
+                    log.info("响应体为流，不在此展示响应体字符串")
+                }
             } else {
                 bodyString = String(data, StandardCharsets.UTF_8)
-                log.info("响应体字符串：{}", bodyString)
+                if (logLevel > Level.BASIC) {
+                    log.info("响应体字符串：{}", bodyString)
+                }
 
                 if (HttpUtil.contentTypeEquals(ContentType.get(entity), ContentType.APPLICATION_JSON)) {
                     if (jsonMapper.isValid(bodyString)) {
                         body = converter(data)
-                        log.info("响应体：{}", body)
+                        if (logLevel > Level.BASIC) {
+                            log.info("响应体：{}", body)
+                        }
                     } else {
                         body = null
                     }
@@ -72,17 +88,19 @@ class Response<T> {
             bodyString = null
         }
         response.close()
-        log.info("==========请求结果==========")
+        if (logLevel > Level.NONE) {
+            log.info("==========请求结果==========")
+        }
         log.warn("===============Http请求结束===============")
     }
 
     companion object {
-        fun <T> build(response: CloseableHttpResponse, converter: (ByteArray) -> T): Response<T> {
-            return Response(response, converter)
+        fun <T> build(response: CloseableHttpResponse, converter: (ByteArray) -> T, logLevel: Level): Response<T> {
+            return Response(response, converter, logLevel)
         }
 
-        fun <T> build(errorMsg: String): Response<T> {
-            return Response(errorMsg)
+        fun <T> build(errorMsg: String, logLevel: Level): Response<T> {
+            return Response(errorMsg, logLevel)
         }
     }
 }
